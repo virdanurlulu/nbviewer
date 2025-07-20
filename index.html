@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <title>Header Calculation with Sheet Pipe Data</title>
+  <meta charset="UTF-8" />
+  <title>Interactive Header Calculation</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; }
     fieldset { margin-bottom: 20px; padding: 15px; }
@@ -12,8 +12,9 @@
     table { border-collapse: collapse; width: 100%; margin-top: 10px; }
     table th, table td { border: 1px solid #ccc; padding: 6px; text-align: center; }
     button { margin-top: 10px; padding: 8px 12px; }
-    #exportBtn { background: #28a745; color: white; border: none; cursor: pointer; }
-    #sheetPipeData { margin-top: 40px; }
+    #exportBtn { background: #28a745; color: #fff; border: none; cursor: pointer; }
+    /* hide the sheet data table */
+    #sheetPipeData { display: none; }
   </style>
 </head>
 <body>
@@ -26,8 +27,12 @@
       <table>
         <thead>
           <tr>
-            <th>No</th><th>Flowrate (L/h)</th><th>Pipe Size (NPS)</th>
-            <th>ID (mm)</th><th>Velocity (m/s)</th><th>Action</th>
+            <th>No</th>
+            <th>Flowrate (L/h)</th>
+            <th>Pipe Size (NPS)</th>
+            <th>ID (mm)</th>
+            <th>Velocity (m/s)</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody id="inletsTbody"></tbody>
@@ -37,173 +42,182 @@
 
     <fieldset>
       <legend>2. Header Design</legend>
-      <label for="headerSize">Header Pipe Size (NPS)</label>
-      <select id="headerSize" required><option value="">-- Select --</option></select>
 
-      <label for="headerID">Header ID (mm)</label><input type="number" id="headerID" readonly/>
-      <label for="pipeMaterial">Pipe Material</label><input type="text" id="pipeMaterial" readonly/>
-      <label for="pipeDensity">Pipe Density (kg/m³)</label><input type="number" id="pipeDensity" readonly/>
-      <label for="roughness">Pipe Roughness (m)</label><input type="number" id="roughness" readonly/>
+      <label for="headerSize">Header Pipe Size (NPS)</label>
+      <input list="npsList" id="headerSize" required />
+      <datalist id="npsList"></datalist>
+
+      <label for="headerID">Header ID (mm)</label>
+      <input type="number" id="headerID" readonly />
+
+      <label for="pipeMaterial">Pipe Material</label>
+      <input type="text" id="pipeMaterial" readonly />
+
+      <label for="pipeDensity">Pipe Density (kg/m³)</label>
+      <input type="number" id="pipeDensity" readonly />
+
+      <label for="roughness">Pipe Roughness (m)</label>
+      <input type="number" id="roughness" readonly />
 
       <label for="headerLength">Header Length (m)</label>
-      <input type="number" id="headerLength" value="20" min="0" required/>
+      <input type="number" id="headerLength" value="20" min="0" required />
 
       <label for="fluidDensity">Fluid Density (kg/m³)</label>
-      <input type="number" id="fluidDensity" value="1000" min="0" step="any" required/>
+      <input type="number" id="fluidDensity" value="1000" min="0" step="any" required />
 
       <label for="fluidViscosity">Fluid Viscosity (Pa·s)</label>
-      <input type="number" id="fluidViscosity" value="0.001" min="0" step="any" required/>
+      <input type="number" id="fluidViscosity" value="0.001" min="0" step="any" required />
     </fieldset>
 
     <button type="submit">Calculate</button>
   </form>
 
   <div id="results"></div>
-  <button id="exportBtn" style="display:none;">Export Results to Excel</button>
+  <button id="exportBtn" style="display: none;">Export Results to Excel</button>
 
-
-  <!-- Sheet Pipe Data -->
+  <!-- Hidden: Sheet Pipe Data -->
   <fieldset id="sheetPipeData">
-    <legend>Sheet: Pipe Data</legend>
+    <legend>Pipe Data</legend>
     <table>
       <thead>
         <tr>
           <th>NPS</th><th>OD (mm)</th><th>Thickness (mm)</th><th>ID (mm)</th>
-          <th>Material</th><th>Density (kg/m³)</th><th>k (W/m·K)</th><th>Roughness (mm)</th>
+          <th>Material</th><th>Density (kg/m³)</th><th>Roughness (mm)</th>
         </tr>
       </thead>
       <tbody>
-        <tr><td>0.5"</td> <td>21.3</td>  <td>2.11</td> <td>17.08</td> <td>Stainless steel</td>   <td>8000</td> <td>14.9</td> <td>0.00006</td></tr>
-        <tr><td>0.75"</td><td>26.7</td>  <td>2.11</td> <td>22.48</td> <td>Stainless steel</td>   <td>8000</td> <td>14.9</td> <td>0.00006</td></tr>
-        <tr><td>1"</td>   <td>33.4</td>  <td>2.77</td> <td>27.86</td> <td>Carbon steel</td>      <td>7850</td> <td>54.2</td> <td>0.046</td></tr>
-        <tr><td>1.5"</td> <td>48.3</td>  <td>2.77</td> <td>42.76</td> <td>Galvanized steel</td>  <td>7850</td> <td>50.0</td> <td>0.15</td></tr>
-        <tr><td>2"</td>   <td>60.3</td>  <td>2.77</td> <td>54.76</td> <td>Carbon steel</td>      <td>7850</td> <td>54.2</td> <td>0.046</td></tr>
-        <tr><td>2.5"</td> <td>73.0</td>  <td>3.05</td> <td>66.90</td> <td>Carbon steel</td>      <td>7850</td> <td>54.2</td> <td>0.046</td></tr>
-        <tr><td>3"</td>   <td>88.9</td>  <td>3.05</td> <td>82.80</td> <td>Carbon steel</td>      <td>7850</td> <td>54.2</td> <td>0.046</td></tr>
-        <tr><td>4"</td>   <td>114.3</td> <td>3.05</td> <td>108.20</td><td>Carbon steel</td>      <td>7850</td> <td>54.2</td> <td>0.046</td></tr>
-        <tr><td>5"</td>   <td>141.3</td> <td>3.40</td> <td>134.50</td><td>Carbon steel</td>      <td>7850</td> <td>54.2</td> <td>0.046</td></tr>
-        <tr><td>6"</td>   <td>168.3</td> <td>3.40</td> <td>161.50</td><td>Carbon steel</td>      <td>7850</td> <td>54.2</td> <td>0.046</td></tr>
-        <tr><td>8"</td>   <td>219.1</td> <td>3.76</td> <td>211.58</td><td>Carbon steel</td>      <td>7850</td> <td>54.2</td> <td>0.046</td></tr>
+        <tr><td>0.5"</td> <td>21.3</td>  <td>2.11</td> <td>17.08</td> <td>Stainless steel</td>  <td>8000</td> <td>0.06</td></tr>
+        <tr><td>0.75"</td><td>26.7</td>  <td>2.11</td> <td>22.48</td> <td>Stainless steel</td>  <td>8000</td> <td>0.06</td></tr>
+        <tr><td>1"</td>   <td>33.4</td>  <td>2.77</td> <td>27.86</td> <td>Carbon steel</td>     <td>7850</td> <td>0.046</td></tr>
+        <tr><td>1.5"</td> <td>48.3</td>  <td>2.77</td> <td>42.76</td> <td>Galvanized steel</td> <td>7850</td> <td>0.15</td></tr>
+        <tr><td>2"</td>   <td>60.3</td>  <td>2.77</td> <td>54.76</td> <td>Carbon steel</td>     <td>7850</td> <td>0.046</td></tr>
+        <tr><td>2.5"</td> <td>73.0</td>  <td>3.05</td> <td>66.90</td> <td>Carbon steel</td>     <td>7850</td> <td>0.046</td></tr>
+        <tr><td>3"</td>   <td>88.9</td>  <td>3.05</td> <td>82.80</td> <td>Carbon steel</td>     <td>7850</td> <td>0.046</td></tr>
+        <tr><td>4"</td>   <td>114.3</td> <td>3.05</td> <td>108.20</td><td>Carbon steel</td>     <td>7850</td> <td>0.046</td></tr>
+        <tr><td>5"</td>   <td>141.3</td> <td>3.40</td> <td>134.50</td><td>Carbon steel</td>     <td>7850</td> <td>0.046</td></tr>
+        <tr><td>6"</td>   <td>168.3</td> <td>3.40</td> <td>161.50</td><td>Carbon steel</td>     <td>7850</td> <td>0.046</td></tr>
+        <tr><td>8"</td>   <td>219.1</td> <td>3.76</td> <td>211.58</td><td>Carbon steel</td>     <td>7850</td> <td>0.046</td></tr>
       </tbody>
     </table>
   </fieldset>
 
-  <!-- SheetJS -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-  <script>
-    window.onload = () => {
-      // 1) Baca sheet pipe data dari tabel
+  <!-- SheetJS for export -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js" defer></script>
+  <script defer>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Parse pipe data
       const pipeData = [];
       document.querySelectorAll('#sheetPipeData tbody tr').forEach(tr => {
-        const [nps, od, th, id, mat, dens, k, rough] =
-          Array.from(tr.children).map(td => td.textContent.trim());
+        const cells = tr.children;
         pipeData.push({
-          nps,
-          od:   parseFloat(od),
-          thickness: parseFloat(th),
-          id:   parseFloat(id),
-          material: mat,
-          density:  parseFloat(dens),
-          k:         parseFloat(k),
-          roughness: parseFloat(rough) // sudah dalam mm
+          nps:        cells[0].textContent.trim(),
+          od:         parseFloat(cells[1].textContent),
+          thickness:  parseFloat(cells[2].textContent),
+          id:         parseFloat(cells[3].textContent),
+          material:   cells[4].textContent.trim(),
+          density:    parseFloat(cells[5].textContent),
+          roughness:  parseFloat(cells[6].textContent) / 1000, // mm → m
         });
       });
-      // ubah roughness ke meter, hitung area
       pipeData.forEach(p => {
-        p.roughness = p.roughness / 1000;
-        p.area = Math.PI * Math.pow((p.id/1000)/2, 2);
+        p.area = Math.PI * Math.pow((p.id / 1000) / 2, 2);
       });
 
-      // 2) Populate dropdown NPS
-      const headerSize = document.getElementById('headerSize');
+      // Populate NPS datalist
+      const npsList = document.getElementById('npsList');
       pipeData.forEach(p => {
-        const o = new Option(p.nps, p.nps);
-        headerSize.append(o);
+        const opt = document.createElement('option');
+        opt.value = p.nps;
+        npsList.appendChild(opt);
       });
 
-      // 3) Inlet table
-      const inletsTbody = document.getElementById('inletsTbody');
+      // Inlet table
       let inletCount = 0;
+      const inletsTbody = document.getElementById('inletsTbody');
       const addInletRow = () => {
         inletCount++;
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${inletCount}</td>
-          <td><input class="flow" type="number" min="0" step="any" required/></td>
+          <td><input class="flow" type="number" min="0" step="any" required /></td>
           <td>
             <select class="inletSize" required>
               <option value="">--Select--</option>
-              ${pipeData.map(p=>`<option value="${p.nps}">${p.nps}</option>`).join('')}
+              ${pipeData.map(p => `<option value="${p.nps}">${p.nps}</option>`).join('')}
             </select>
           </td>
-          <td><input class="inletID" type="number" readonly/></td>
-          <td><input class="inletVel" type="number" readonly/></td>
-          <td><button type="button" class="removeInlet">✖</button></td>
+          <td><input class="inletID" type="number" readonly /></td>
+          <td><input class="inletVel" type="number" readonly /></td>
+          <td><button type="button" class="remove">✖</button></td>
         `;
-        inletsTbody.append(tr);
-        tr.querySelector('.removeInlet').onclick = ()=>tr.remove();
-        tr.querySelector('.flow').oninput  = ()=>recalcInlet(tr);
-        tr.querySelector('.inletSize').onchange = ()=>recalcInlet(tr);
+        inletsTbody.appendChild(tr);
+        tr.querySelector('.remove').addEventListener('click', () => tr.remove());
+        tr.querySelector('.flow').addEventListener('input', () => recalcInlet(tr));
+        tr.querySelector('.inletSize').addEventListener('change', () => recalcInlet(tr));
       };
-      document.getElementById('addInlet').onclick = addInletRow;
-      for(let i=0;i<8;i++) addInletRow();
+      document.getElementById('addInlet').addEventListener('click', addInletRow);
+      for (let i = 0; i < 8; i++) addInletRow();
 
       function recalcInlet(row) {
         const q = +row.querySelector('.flow').value || 0;
         const sel = row.querySelector('.inletSize').value;
-        const pipe = pipeData.find(x=>x.nps===sel);
-        if(!pipe) return;
-        row.querySelector('.inletID').value  = pipe.id;
-        const v = q/1000/3600/pipe.area;
+        const pipe = pipeData.find(p => p.nps === sel);
+        if (!pipe) return;
+        row.querySelector('.inletID').value = pipe.id;
+        const v = q / 1000 / 3600 / pipe.area;
         row.querySelector('.inletVel').value = v.toFixed(3);
       }
 
-      // 4) Saat header NPS dipilih
-      headerSize.onchange = () => {
-        const sel = headerSize.value;
-        const p = pipeData.find(x=>x.nps===sel);
-        if(!p) return;
-        document.getElementById('headerID').value     = p.id;
-        document.getElementById('pipeMaterial').value = p.material;
-        document.getElementById('pipeDensity').value  = p.density;
-        document.getElementById('roughness').value    = p.roughness;
-      };
+      // Header selection
+      const headerInput = document.getElementById('headerSize');
+      headerInput.addEventListener('input', () => {
+        const sel = headerInput.value;
+        const pipe = pipeData.find(p => p.nps === sel);
+        if (!pipe) return;
+        document.getElementById('headerID').value     = pipe.id;
+        document.getElementById('pipeMaterial').value = pipe.material;
+        document.getElementById('pipeDensity').value  = pipe.density;
+        document.getElementById('roughness').value    = pipe.roughness;
+      });
 
-      // 5) Hitung
-      document.getElementById('headerForm').onsubmit = e => {
+      // Calculation and results
+      document.getElementById('headerForm').addEventListener('submit', e => {
         e.preventDefault();
-        const rows = [...inletsTbody.querySelectorAll('tr')];
+        const rows = Array.from(inletsTbody.querySelectorAll('tr'));
         const flows = [], ids = [];
         rows.forEach(r => {
           const f = +r.querySelector('.flow').value;
           const i = +r.querySelector('.inletID').value;
-          if(f>0 && i>0) { flows.push(f); ids.push(i); }
+          if (f > 0 && i > 0) { flows.push(f); ids.push(i); }
         });
-        if(!flows.length) return alert('Isi minimal 1 inlet');
+        if (!flows.length) return alert('Please enter at least one valid inlet.');
 
-        const totalQ = flows.reduce((a,b)=>a+b,0);
+        const totalQ = flows.reduce((a, b) => a + b, 0);
         const maxID  = Math.max(...ids);
+
         const D_mm = +document.getElementById('headerID').value;
-        const D_m  = D_mm/1000;
+        const D_m  = D_mm / 1000;
         const L    = +document.getElementById('headerLength').value;
         const e    = +document.getElementById('roughness').value;
         const rho  = +document.getElementById('fluidDensity').value;
         const mu   = +document.getElementById('fluidViscosity').value;
         const g    = 9.81;
 
-        const Qm3s = totalQ/1000/3600;
-        const area = Math.PI*(D_m/2)**2;
-        const v    = Qm3s/area;
-        const Re   = v*D_m*rho/mu;
-        const f    = 0.25/Math.pow(Math.log10(e/(3.7*D_m)+5.74/Math.pow(Re,0.9)),2);
-        const hf   = f*(L/D_m)*v**2/(2*g);
-        const dp   = hf*rho*g/1e5;
-        const c1 = D_mm > 1.33*maxID;
+        const Qm3s = totalQ / 1000 / 3600;
+        const area = Math.PI * (D_m / 2) ** 2;
+        const v    = Qm3s / area;
+        const Re   = v * D_m * rho / mu;
+        const f    = 0.25 / Math.pow(Math.log10(e / (3.7 * D_m) + 5.74 / Math.pow(Re, 0.9)), 2);
+        const hf   = f * (L / D_m) * v ** 2 / (2 * g);
+        const dp   = hf * rho * g / 1e5;
+
+        const c1 = D_mm > 1.33 * maxID;
         const c2 = v <= 2;
         const c3 = dp < 1;
-        const ok = [c1,c2,c3].filter(x=>x).length >= 2;
+        const ok = [c1, c2, c3].filter(x => x).length >= 2;
 
-        document.getElementById('results').innerHTML = `
+        const resultsDiv = document.getElementById('results');
+        resultsDiv.innerHTML = `
           <fieldset><legend>3. Results</legend>
           <table>
             <tr><th>Parameter</th><th>Value</th></tr>
@@ -213,20 +227,21 @@
             <tr><td>Friction Factor</td><td>${f.toFixed(5)}</td></tr>
             <tr><td>Head Loss (m)</td><td>${hf.toFixed(3)}</td></tr>
             <tr><td>Pressure Drop (bar)</td><td>${dp.toFixed(4)}</td></tr>
-            <tr><td>Criteria Met</td>
-              <td style="color:${ok?'green':'red'}">
-                ${ok?'YES':'NO'} (Size:${c1}, Vel:${c2}, DP:${c3})
+            <tr>
+              <td>Criteria Met</td>
+              <td style="color:${ok ? 'green' : 'red'}">
+                ${ok ? 'YES' : 'NO'} (Size:${c1}, Vel:${c2}, DP:${c3})
               </td>
             </tr>
           </table>
           </fieldset>`;
         document.getElementById('exportBtn').style.display = 'inline-block';
-      };
+      });
 
-      // 6) Export
-      document.getElementById('exportBtn').onclick = () => {
-        const rows = [...document.querySelectorAll('#results table tr')].slice(1);
-        const data = rows.map(r=>({
+      // Export to Excel
+      document.getElementById('exportBtn').addEventListener('click', () => {
+        const rows = Array.from(document.querySelectorAll('#results table tr')).slice(1);
+        const data = rows.map(r => ({
           Parameter: r.cells[0].textContent,
           Value:     r.cells[1].textContent
         }));
@@ -234,9 +249,8 @@
         const ws = XLSX.utils.json_to_sheet(data);
         XLSX.utils.book_append_sheet(wb, ws, 'Results');
         XLSX.writeFile(wb, 'HeaderCalc_Results.xlsx');
-      };
-    };
+      });
+    });
   </script>
-
 </body>
 </html>
